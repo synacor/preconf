@@ -56,6 +56,7 @@ Creates a higher order component that provides values from configuration as prop
 
 -   `namespace` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** If provided, exposes `defaults` under a `namespace`
 -   `defaults` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** An object containing default configuration values
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** An object containing options for resolving configuration values (optional, default `{}`)
 
 **Examples**
 
@@ -77,6 +78,15 @@ export default configure({
 	url: 'weather.url'
 })( ({ url }) =>
 	<a href={props.url} />
+);
+```
+
+```javascript
+let configure = preconf('users', { user1: { first: 'john' } }, { deepMerge: true });
+export default configure({
+	user1: { last: 'smith' }
+})( ({ user1 }) =>
+	<span>Full Name: {`${props.user1.first} ${props.user1.last}`}</span>
 );
 ```
 

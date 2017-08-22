@@ -118,5 +118,50 @@ describe('preconf', () => {
 				});
 			});
 		});
+
+		describe('opts.deepMerge', () => {
+			let defaults = {
+				a: 'b',
+				c: { d: 'e', f: { g: 'h' } }
+			};
+
+			let Child = spy( () => null );
+			let opts = { deepMerge: true };
+			let configure = preconf(null, defaults, opts);
+
+			function test(config, selector) {
+				Child.reset();
+				let Wrapped = configure(selector)(Child);
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+			}
+
+			it('should pass defaults', () => {
+				test(undefined, ['a', 'c']);
+				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: { d: 'e', f: { g: 'h' } } });
+			});
+
+			it('should pass provided config values', () => {
+				let config = { c: 'override', e: 'f' };
+
+				test(config, ['a', 'c', 'e']);
+				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: 'override', e: 'f' });
+
+			});
+
+			it('should deep merge config values', () => {
+				let config = { c: { f: { g: 'override' } }, e: 'f' };
+
+				test(config, ['a', 'c', 'e']);
+				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: { d: 'e', f: { g: 'override' } }, e: 'f' });
+
+				config = { c: { d: 'override' }, e: 'f' };
+
+				test(config, ['a', 'c', 'e']);
+				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: { d: 'override', f: { g: 'h' } }, e: 'f' });
+
+			});
+
+		});
+
 	});
 });

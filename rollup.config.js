@@ -4,11 +4,13 @@ export default {
 	useStrict: false,
 	external: [
 		'preact',
-		'dlv'
+		'dlv',
+		'deepmerge'
 	],
 	globals: {
 		preact: 'preact',
-		dlv: 'dlv'
+		dlv: 'dlv',
+		deepmerge: 'deepmerge'
 	},
 	plugins: [
 		buble({
