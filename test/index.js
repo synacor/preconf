@@ -126,38 +126,57 @@ describe('preconf', () => {
 			};
 
 			let Child = spy( () => null );
-			let opts = { deepMerge: true };
-			let configure = preconf(null, defaults, opts);
+			// let opts = { deepMerge: true };
+			// let configure = preconf(null, defaults, opts);
 
-			function test(config, selector) {
+			function test(config, selector, opts) {
 				Child.reset();
-				let Wrapped = configure(selector)(Child);
+				let Wrapped = preconf(null, defaults, opts)(selector)(Child);
 				rndr(<Provider config={config}><Wrapped /></Provider>);
 			}
 
 			it('should pass defaults', () => {
 				test(undefined, ['a', 'c']);
-				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: { d: 'e', f: { g: 'h' } } });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith(defaults);
 			});
 
 			it('should pass provided config values', () => {
 				let config = { c: 'override', e: 'f' };
 
 				test(config, ['a', 'c', 'e']);
-				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: 'override', e: 'f' });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'b', c: 'override', e: 'f' });
 
 			});
 
-			it('should deep merge config values', () => {
+			it('should deep merge config values by default', () => {
 				let config = { c: { f: { g: 'override' } }, e: 'f' };
 
 				test(config, ['a', 'c', 'e']);
-				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: { d: 'e', f: { g: 'override' } }, e: 'f' });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'b', c: { d: 'e', f: { g: 'override' } }, e: 'f' });
 
 				config = { c: { d: 'override' }, e: 'f' };
 
 				test(config, ['a', 'c', 'e']);
-				expect(Child).to.have.been.calledWithMatch({ a: 'b', c: { d: 'override', f: { g: 'h' } }, e: 'f' });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'b', c: { d: 'override', f: { g: 'h' } }, e: 'f' });
+
+			});
+
+			it('should not deep merge config values when deep merge option set to false', () => {
+				let config = { c: { f: { g: 'override' } }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { deepMerge: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ ...defaults, ...config });
+
+				config = { c: { d: 'override' }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { deepMerge: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ ...defaults, ...config });
 
 			});
 

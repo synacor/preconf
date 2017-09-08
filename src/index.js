@@ -27,14 +27,14 @@ import merge from 'deepmerge';
  *	);
  *
  *	@example
- *	let configure = preconf('users', { user1: { first: 'john' } }, { deepMerge: true });
+ *	let configure = preconf('locations', { headquarters: { country: 'Germany' } });
  *	export default configure({
- *		user1: { last: 'smith' }
- *	})( ({ user1 }) =>
- *		<span>Full Name: {`${props.user1.first} ${props.user1.last}`}</span>
+ *		headquarters: { city: 'Hamburg' }
+ *	})( ({ headquarters }) =>
+ *		<span>Location: {`${props.headquarters.city}, ${props.headquarters.country}`}</span>
  *	);
  */
-export default function preconf(namespace, defaults, options={}) {
+export default function preconf(namespace, defaults, { deepMerge=true }={}) {
 	if (namespace) defaults = { [namespace]: defaults };
 
 	/**	Creates a Higher Order Component that provides configuration as props.
@@ -57,7 +57,7 @@ export default function preconf(namespace, defaults, options={}) {
 				let inheritedVal = delve(context, 'config.'+path);
 				let defaultVal = delve(defaults, path);
 
-				if (options.deepMerge && inheritedVal && defaultVal && typeof inheritedVal === 'object' && typeof defaultVal === 'object') {
+				if (deepMerge && inheritedVal && defaultVal && typeof inheritedVal === 'object' && typeof defaultVal === 'object') {
 					props[key] = merge(defaultVal, inheritedVal);
 				}
 
