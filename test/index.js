@@ -119,15 +119,13 @@ describe('preconf', () => {
 			});
 		});
 
-		describe('opts.deepMerge', () => {
+		describe('opts.mergeProps', () => {
 			let defaults = {
 				a: 'b',
 				c: { d: 'e', f: { g: 'h' } }
 			};
 
 			let Child = spy( () => null );
-			// let opts = { deepMerge: true };
-			// let configure = preconf(null, defaults, opts);
 
 			function test(config, selector, opts) {
 				Child.reset();
@@ -165,18 +163,94 @@ describe('preconf', () => {
 
 			});
 
-			it('should not deep merge config values when deep merge option set to false', () => {
+			it('should not deep merge config values when merge props option set to false', () => {
 				let config = { c: { f: { g: 'override' } }, e: 'f' };
 
-				test(config, ['a', 'c', 'e'], { deepMerge: false });
+				test(config, ['a', 'c', 'e'], { mergeProps: false });
 				delete Child.args[0][0].children;
 				expect(Child).to.have.been.calledWith({ ...defaults, ...config });
 
 				config = { c: { d: 'override' }, e: 'f' };
 
-				test(config, ['a', 'c', 'e'], { deepMerge: false });
+				test(config, ['a', 'c', 'e'], { mergeProps: false });
 				delete Child.args[0][0].children;
 				expect(Child).to.have.been.calledWith({ ...defaults, ...config });
+
+			});
+
+			it('should merge only select keys when merge props opt is provided Array of keys to merge', () => {
+				let config = { a: 'override', c: { f: { g: 'override' } }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { mergeProps: ['c'] });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'override', c: { d: 'e', f: { g: 'override' } }, e: 'f' });
+
+				config = { c: { d: 'override' }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { mergeProps: [] });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ ...defaults, ...config });
+
+			});
+
+		});
+
+		describe('opts.yieldToContext', () => {
+			let defaults = {
+				a: 'b',
+				c: { d: 'e', f: { g: 'h' } }
+			};
+
+			let Child = spy( () => null );
+
+			function test(config, selector, opts) {
+				Child.reset();
+				let Wrapped = preconf(null, defaults, opts)(selector)(Child);
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+			}
+
+			it('should override config from context when default config given precedence', () => {
+				let config = { c: { f: { g: 'override' } }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { yieldToContext: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'b', c: { d: 'e', f: { g: 'h' } }, e: 'f' });
+
+				config = { a: 'override', c: { d: 'override' }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { yieldToContext: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'b', c: { d: 'e', f: { g: 'h' } }, e: 'f' });
+
+			});
+
+			it('should not override default configs when merge props option set to false', () => {
+				let config = { c: { f: { g: 'override' } }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { mergeProps: false, yieldToContext: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ ...config, ...defaults });
+
+				config = { c: { d: 'override' }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { mergeProps: false, yieldToContext: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ ...config, ...defaults });
+
+			});
+
+			it('should merge only select keys when merge props opt is provided Array of keys to merge', () => {
+				let config = { a: 'override', c: { f: { g: 'override' } }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { mergeProps: ['c'], yieldToContext: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ a: 'b', c: { d: 'e', f: { g: 'h' } }, e: 'f' });
+
+				config = { c: { d: 'override' }, e: 'f' };
+
+				test(config, ['a', 'c', 'e'], { mergeProps: [], yieldToContext: false });
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ ...config, ...defaults });
 
 			});
 

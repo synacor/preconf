@@ -48,7 +48,7 @@ render(
 
 **Collisions**
 
-In the event that a configuration field is present as a mergeable object in both `context.config` and the default configuration object provided to `preconf`, the resulting prop passed to the enhanced component will be a merged object.
+In the event that a configuration field is present as a mergeable object in both `context.config` and the default configuration object provided to `preconf`, the resulting prop passed to the enhanced component will be a merged object, with the configuration value from `context` overriding the value from the default configuration for keys that cannot be merged.
 
 Default behavior:
 
@@ -66,14 +66,35 @@ render(
 // Foo receives prop `name` as merged object: { first: 'Bob', last: 'Jones'}
 ```
 
-To prevent the default behavior and override the provided default mergeable object with the mergeable object from `context.config`, `deepMerge` in the `options` parameter can be set to `false`.
+To prevent the default behavior and allow values in the default mergeable object to take precedence over values from the mergeable object from  `context.config`, `yieldToContext` in the `options` parameter can be set to `false`.
+
+Override value from `context.config` with value from default:
+
+```js
+const defaults = { name: { first: 'Bob', } };
+// Additional options parameter passed with yieldToContext set to false
+let configure = preconf(null, defaults, { yieldToContext: false });
+
+let FooWithDefaults = configure('name')(Foo)
+
+render(
+	<Provider config={{ name: { last: 'Jones' } }}>
+		<FooWithDefaults />
+	</Provider>
+)
+// Foo receives prop `name` as unmerged object: { first: 'Bob'}
+```
+
+To prevent the default behavior and prevent deep-merging mergeable objects, `mergeProps` in the `options` parameter can be set to `false`.
+
+_Note: precedence will be given to the object in `context` unless `yieldToContext` in `options` is set to `false`._
 
 Override with value from `context.config`:
 
 ```js
 const defaults = { name: { first: 'Bob', } };
-// Additional options parameter passed with deepMerge set to false
-let configure = preconf(null, defaults, { deepMerge: false });
+// Additional options parameter passed with mergeProps set to false
+let configure = preconf(null, defaults, { mergeProps: false });
 
 let FooWithDefaults = configure('name')(Foo)
 
@@ -83,6 +104,29 @@ render(
 	</Provider>
 )
 // Foo receives prop `name` as unmerged object: { last: 'Jones'}
+```
+
+To prevent the default behavior and override only specific top-level keys, `mergeProps` in the `options` parameter can be set to an `Array` of key names, where only the keys present in the `mergeProps` `Array` will be merged.
+
+_Note: Selective key-merging only applies to top-level keys; nested keys of the same name are merged._
+
+_Note: Can be used in combination with `yieldToContext` to determine precedence in merging select top-level keys._
+
+Override only specific top-level keys:
+
+```js
+const defaults = { name: { first: 'Bob', }, location: { city: 'Hamburg' } };
+// Additional options parameter passed with mergeProps set to an Array of keys to be merged
+let configure = preconf(null, defaults, { mergeProps: ['location'] });
+
+let FooWithDefaults = configure('name, location')(Foo)
+
+render(
+	<Provider config={{ name: { last: 'Jones' }, location: { country: 'Germany' } }}>
+		<FooWithDefaults />
+	</Provider>
+)
+// Foo receives prop `name` as unmerged object: { last: 'Jones'}, and prop `location` as merged object: { country: 'Germany', city: 'Hamburg' }
 ```
 
 ## API
@@ -95,10 +139,11 @@ Creates a higher order component that provides values from configuration as prop
 
 **Parameters**
 
--   `namespace` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** If provided, exposes `defaults` under a `namespace`
--   `defaults` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** An object containing default configuration values
--   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** An object containing options for resolving configuration values (optional, default `{}`)
-    -   `options.deepMerge`   (optional, default `true`)
+-   `namespace` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?** If provided, exposes `defaults` under a `namespace`
+-   `defaults` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)?** An object containing default configuration values
+-   `options` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)?** An object containing options for resolving configuration values (optional, default `{}`)
+    -   `options.mergeProps` **([Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean) \| [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array))?** A boolean indicating whether props should be merged, or an array indicating which keys in props should be merged (optional, default `true`)
+    -   `options.yieldToContext` **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** A boolean where false indicates that the default values should override those from context, else values in context take precedence (optional, default `true`)
 
 **Examples**
 
@@ -132,7 +177,7 @@ export default configure({
 );
 ```
 
-Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** [configure()](#configure)
+Returns **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** [configure()](#configure)
 
 #### configure
 
@@ -140,6 +185,6 @@ Creates a Higher Order Component that provides configuration as props.
 
 **Parameters**
 
--   `keys` **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>)** An object where the keys are prop names to pass down and values are dot-notated keypaths corresponding to values in configuration. If a string or array, prop names are inferred from configuration keys.
+-   `keys` **([Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)>)** An object where the keys are prop names to pass down and values are dot-notated keypaths corresponding to values in configuration. If a string or array, prop names are inferred from configuration keys.
 
-Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** configureComponent(Component) -> Component
+Returns **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** configureComponent(Component) -> Component
