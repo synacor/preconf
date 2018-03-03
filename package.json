@@ -82,6 +82,7 @@
     "preact": "*"
   },
   "dependencies": {
+    "deepmerge": "^1.5.0",
     "dlv": "^1.1.0"
   }
 }
