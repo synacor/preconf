@@ -3,11 +3,11 @@ import delve from 'dlv';
 import merge from 'deepmerge';
 
 /**	Creates a higher order component that provides values from configuration as props.
- *	@param {String} [namespace]										If provided, exposes `defaults` under a `namespace`
- *	@param {Object} [defaults]										An object containing default configuration values
- *	@param {Object} [options]											An object containing options for resolving configuration values
- *	@param {Boolean|Array} [options.mergeProps]		A boolean indicating whether props should be merged, or an array indicating which keys in props should be merged
- *	@param {Boolean} [options.yieldToContext]			A boolean where false indicates that the default values should override those from context, else values in context take precedence
+ *	@param {String} [namespace]                  If provided, exposes `defaults` under a `namespace`
+ *	@param {Object} [defaults]                   An object containing default configuration values
+ *	@param {Object} [options]                    An object containing options for resolving configuration values
+ *	@param {Boolean|Array} [options.mergeProps]  A boolean indicating whether props should be merged, or an array indicating which keys in props should be merged
+ *	@param {Boolean} [options.yieldToContext]    A boolean where false indicates that the default values should override those from context, else values in context take precedence
  *	@returns {Function} [configure()](#configure)
  *
  *	@example
@@ -29,11 +29,11 @@ import merge from 'deepmerge';
  *	);
  *
  *	@example
- *	let configure = preconf('locations', { headquarters: { country: 'Germany' } });
- *	export default configure({
- *		headquarters: { city: 'Hamburg' }
- *	})( ({ headquarters }) =>
- *		<span>Location: {`${props.headquarters.city}, ${props.headquarters.country}`}</span>
+ *	// context.config = { location: { city: 'Hamburg' }}
+ *
+ *	let configure = preconf(null, { location: { country: 'Germany' } });
+ *	export default configure('location')( (props) =>
+ *		<span>Location: {`${props.location.city}, ${props.location.country}`}</span>
  *	);
  */
 export default function preconf(namespace, defaults, { mergeProps=true, yieldToContext=true }={}) {

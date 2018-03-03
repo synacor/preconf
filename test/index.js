@@ -256,5 +256,82 @@ describe('preconf', () => {
 
 		});
 
+		describe('namespacing', () => {
+			
+			it('should pass the correct props when no namespace is provided - prop name specified as string', () => {
+				let Child = spy( () => null );
+				let configure = preconf(null, { headquarters: { city: 'Hamburg' } });
+				let Wrapped = configure('headquarters')(Child);
+				
+				let config = { headquarters: { country: 'Germany' } };
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ headquarters: { city: 'Hamburg', country: 'Germany' } });
+			});
+
+			it('should pass the correct props when no namespace is provided - prop name specified as object', () => {
+				let Child = spy( () => null );
+				let configure = preconf(null, { headquarters: { city: 'Hamburg' } });
+				let Wrapped = configure({ location: 'headquarters' })(Child);
+				
+				let config = { headquarters: { country: 'Germany' } };
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ location: { city: 'Hamburg', country: 'Germany' } });
+			});
+
+			it('should pass the correct props for provided namespace', () => {
+				let Child = spy( () => null );
+				let configure = preconf('hq', { headquarters: { city: 'Hamburg' } });
+				let Wrapped = configure({ location: 'hq.headquarters' })(Child);
+				
+				let config = { headquarters: { country: 'Germany' } };
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ location: { city: 'Hamburg' } });
+			});
+
+			it('should pass the correct props for conflicting namespace - opts === default', () => {
+				let Child = spy( () => null );
+				let configure = preconf('hq', { headquarters: { city: 'Hamburg' } });
+				let Wrapped = configure({ location: 'hq.headquarters' })(Child);
+				
+				let config = { hq: { headquarters: { country: 'Germany' } } };
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ location: { city: 'Hamburg', country: 'Germany' } });
+			});
+
+			it('should pass the correct props for conflicting namespace - opts === { mergeProps: false }', () => {
+				let Child = spy( () => null );
+				let configure = preconf('hq', { headquarters: { city: 'Hamburg' } }, { mergeProps: false });
+				let Wrapped = configure({ location: 'hq.headquarters' })(Child);
+				
+				let config = { hq: { headquarters: { country: 'Germany' } } };
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ location: { country: 'Germany' } });
+			});
+
+			it('should pass the correct props for conflicting namespace - opts === { mergeProps: false, yieldToContext: false }', () => {
+				let Child = spy( () => null );
+				let configure = preconf('hq', { headquarters: { city: 'Hamburg' } }, { mergeProps: false, yieldToContext: false });
+				let Wrapped = configure({ location: 'hq.headquarters' })(Child);
+				
+				let config = { hq: { headquarters: { country: 'Germany' } } };
+				rndr(<Provider config={config}><Wrapped /></Provider>);
+
+				delete Child.args[0][0].children;
+				expect(Child).to.have.been.calledWith({ location: { city: 'Hamburg' } });
+			});
+
+
+		});
+
 	});
 });

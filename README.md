@@ -66,25 +66,6 @@ render(
 // Foo receives prop `name` as merged object: { first: 'Bob', last: 'Jones'}
 ```
 
-To prevent the default behavior and allow values in the default mergeable object to take precedence over values from the mergeable object from  `context.config`, `yieldToContext` in the `options` parameter can be set to `false`.
-
-Override value from `context.config` with value from default:
-
-```js
-const defaults = { name: { first: 'Bob', } };
-// Additional options parameter passed with yieldToContext set to false
-let configure = preconf(null, defaults, { yieldToContext: false });
-
-let FooWithDefaults = configure('name')(Foo)
-
-render(
-	<Provider config={{ name: { last: 'Jones' } }}>
-		<FooWithDefaults />
-	</Provider>
-)
-// Foo receives prop `name` as unmerged object: { first: 'Bob'}
-```
-
 To prevent the default behavior and prevent deep-merging mergeable objects, `mergeProps` in the `options` parameter can be set to `false`.
 
 _Note: precedence will be given to the object in `context` unless `yieldToContext` in `options` is set to `false`._
@@ -104,6 +85,25 @@ render(
 	</Provider>
 )
 // Foo receives prop `name` as unmerged object: { last: 'Jones'}
+```
+
+To prevent the default behavior and allow values in the default mergeable object to take precedence over values from the mergeable object from  `context.config`, `yieldToContext` in the `options` parameter can be set to `false`.
+
+Override value from `context.config` with value from default:
+
+```js
+const defaults = { name: { first: 'Bob', } };
+// Additional options parameter passed with yieldToContext set to false
+let configure = preconf(null, defaults, { mergeProps: false, yieldToContext: false });
+
+let FooWithDefaults = configure('name')(Foo)
+
+render(
+	<Provider config={{ name: { last: 'Jones' } }}>
+		<FooWithDefaults />
+	</Provider>
+)
+// Foo receives prop `name` as unmerged object: { first: 'Bob'}
 ```
 
 To prevent the default behavior and override only specific top-level keys, `mergeProps` in the `options` parameter can be set to an `Array` of key names, where only the keys present in the `mergeProps` `Array` will be merged.
@@ -169,11 +169,11 @@ export default configure({
 ```
 
 ```javascript
-let configure = preconf('locations', { headquarters: { country: 'Germany' } });
-export default configure({
-	headquarters: { city: 'Hamburg' }
-})( ({ headquarters }) =>
-	<span>Location: {`${props.headquarters.city}, ${props.headquarters.country}`}</span>
+// context.config = { location: { city: 'Hamburg' }}
+
+let configure = preconf(null, { location: { country: 'Germany' } });
+export default configure('location')( (props) =>
+	<span>Location: {`${props.location.city}, ${props.location.country}`}</span>
 );
 ```
 
