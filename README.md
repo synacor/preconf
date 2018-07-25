@@ -2,6 +2,7 @@
   <img src="resources/preconf-logo.png" width="400" alt="preconf">
   <br>
   <a href="https://www.npmjs.org/package/preconf"><img src="https://img.shields.io/npm/v/preconf.svg?style=flat" alt="npm"></a> <a href="https://travis-ci.org/synacor/preconf"><img src="https://travis-ci.org/synacor/preconf.svg?branch=master" alt="travis"></a>
+<a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fsynacor%2Fpreconf?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsynacor%2Fpreconf.svg?type=shield"/></a>
 </p>
 
 A Higher Order Component that provides configuration (from context & defaults) as props.
@@ -91,3 +92,7 @@ Creates a Higher Order Component that provides configuration as props.
 -   `keys` **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>)** An object where the keys are prop names to pass down and values are dot-notated keypaths corresponding to values in configuration. If a string or array, prop names are inferred from configuration keys.
 
 Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** configureComponent(Component) -> Component
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsynacor%2Fpreconf.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsynacor%2Fpreconf?ref=badge_large)
