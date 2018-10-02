@@ -13,6 +13,8 @@ Preconf is just 400 bytes and works well with [preact-context-provider](https://
 
 ## Usage
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/synacor/preconf.svg)](https://greenkeeper.io/)
+
 ```js
 import preconf from 'preconf';
 import Provider from 'preact-context-provider';
