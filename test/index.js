@@ -34,7 +34,7 @@ describe('preconf', () => {
 		describe('getWrappedComponent()', () => {
 
 			it('should be a function', () => {
-				expect(preconf(null, { a: 'b' })(['a'])(spy())).to.be.a('function');
+				expect(preconf(null, { a: 'b' })(['a'])(spy()).getWrappedComponent).to.be.a('function');
 			});
 
 			it('should return the Child component that it is wrapping', () => {
