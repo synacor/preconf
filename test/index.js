@@ -7,8 +7,6 @@ import Provider from 'preact-context-provider';
 import preconf from '../src';
 chai.use(sinonChai);
 
-/** @jsx h */
-
 /*eslint-env mocha*/
 
 describe('preconf', () => {
@@ -18,11 +16,11 @@ describe('preconf', () => {
 	beforeEach( () => rndr(null) );
 
 	describe('preconf()', () => {
-		it('should return a function', () => {
+		it('should return a function for preconf()', () => {
 			expect(preconf()).to.be.a('function');
 		});
 
-		it('should return a function', () => {
+		it('should return a function for preconf()()', () => {
 			let defaults = {
 				a: 'b',
 				c: 'd'
@@ -32,6 +30,28 @@ describe('preconf', () => {
 			expect(deco).to.be.a('function');
 			expect(deco( () => {} )).to.be.a('function');
 		});
+
+		describe('getWrappedComponent()', () => {
+
+			it('should be a function', () => {
+				expect(preconf(null, { a: 'b' })(['a'])(spy()).getWrappedComponent).to.be.a('function');
+			});
+
+			it('should return the Child component that it is wrapping', () => {
+				let Foo = spy();
+				let Wrapped = preconf(null, { a: 'b' })(['a'])(Foo);
+				expect(Wrapped.getWrappedComponent()).to.equal(Foo);
+			});
+
+			it('should recursively call getWrappedComponent() on Child components to return the first non-decorator Child', () => {
+				let Foo = spy();
+				//Wrap Foo in two layers of configuration to make sure Foo is returned by the top level call to getWrappedComponent
+				let Wrapped = preconf(null, { a: 'b' })(['a'])(preconf(null, { c: 'd' })(['c'])(Foo));
+				expect(Wrapped.getWrappedComponent()).to.equal(Foo);
+			});
+
+		});
+
 
 		describe('selection', () => {
 			let defaults = {
@@ -43,7 +63,7 @@ describe('preconf', () => {
 			let configure = preconf(null, defaults);
 
 			function test(config, selector) {
-				Child.reset();
+				Child.resetHistory();
 				let Wrapped = configure(selector)(Child);
 				rndr(<Provider config={config}><Wrapped /></Provider>);
 			}

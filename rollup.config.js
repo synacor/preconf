@@ -1,19 +1,17 @@
 import buble from 'rollup-plugin-buble';
 
-export default {
-	useStrict: false,
+module.exports = {
 	external: [
 		'preact',
 		'dlv'
 	],
-	globals: {
-		preact: 'preact',
-		dlv: 'dlv'
+	output: {
+		globals: {
+			preact: 'preact',
+			dlv: 'dlv'
+		}
 	},
 	plugins: [
-		buble({
-			objectAssign: 'assign',
-			jsx: 'h'
-		})
+		buble()
 	]
 };
