@@ -16,7 +16,7 @@
     "test:unit": "mocha --require @babel/register test/**/*.js",
     "test:watch": "npm run test:unit -- -w",
     "docs": "documentation readme src/index.js --section API -q",
-    "prepublishOnly": "npm run build && git commit -am $npm_package_version && git tag $npm_package_version && git push --follow-tags"
+    "prepublishOnly": "npm run build && git commit -am $npm_package_version && git tag $npm_package_version && git push && git push --tags"
   },
   "eslintConfig": {
     "extends": "eslint-config-synacor",
