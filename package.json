@@ -1,7 +1,7 @@
 {
   "name": "preconf",
   "amdName": "preconf",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Configure your components, easily.",
   "main": "dist/preconf.js",
   "minified:main": "dist/preconf.min.js",
